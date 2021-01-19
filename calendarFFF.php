@@ -1,49 +1,70 @@
 <?php
 
+require 'vendor/autoload.php';
+
 $today = new DateTime();
 
+if(isset($_GET['t']) && preg_match('/\A\d{4}-\d{2}\z/', $_GET['t'])) {
+  //クエリ情報を基にしてDateTimeインスタンスを作成
+  $start_day = new DateTime($_GET['t'] . '-01');
+} else {
+  //当月初日のDateTimeインスタンスを作成
+  $start_day = new DateTime('first day of this month');
+}
+
+//カレンダーの前月の年月を取得
+$dt = clone($start_day);
+$prev_month =  $dt->modify('-1 month')->format('Y-m');
+
+//翌月の年月を取得
+$dt = clone($start_day);
+$next_month = $dt -> modify('+1 month') -> format('Y-m');
 
 
-$startDay = new DateTime('first day of this month');
+$year_month = $start_day -> format('Y-m');
 
-$yearMonth = $startDay -> format('Y-m');
+$year = $start_day->format('Y');
 
-$w = $startDay -> format('w');
+$w = $start_day -> format('w');
 
-$startDay -> modify('-'.$w.'day');
+$start_day -> modify('-'.$w.'day');
 
 
-$endDay = new DateTime('last day of this month');
+$end_day = new DateTime('last day of'.$year_month);
 
-$w = $endDay ->format('w');
+$w = $end_day ->format('w');
 
 $w = 6 - $w + 1;
 
-$endDay -> modify('+'.$w.'day');
+$end_day -> modify('+'.$w.'day');
 
 $period = new DatePeriod(
-  $startDay,
+  $start_day,
   new DateInterval('P1D'),
-  $endDay
+  $end_day
 );
 
+$holidays = \Yasumi\Yasumi::create('Japan', $year, 'ja_JP');
 
 $body = "";
 
 foreach($period as $day) {
-  $grayClass = $day -> format('Y-m')===$yearMonth?'':'grey';
+  $grey_class = $day -> format('Y-m')===$year_month?'':'grey';
 
-  $todayClass = $day -> format('Y-m-d')===$today->format('Y-m-d')?'today':'';
+  $today_class = $day -> format('Y-m-d')===$today->format('Y-m-d')?'today':'';
+
+  $holiday_class = $holidays->isHoliday($day) ? 'holiday' : '';
 
   if($day -> format('w') == 0) {
     $body.='<tr>';
   }
 
   $body .=sprintf(
-    '<td class="youbi_%d %s %s">%d</td>',
+    '<td class="youbi_%d %s %s %s">%d</td>',
     $day ->format('w'),
-    $todayClass,
-    $grayClass,
+    $today_class,
+    $grey_class,
+    $holiday_class,
     $day -> format('d')
   );
 
@@ -65,9 +86,9 @@ foreach($period as $day) {
   <table>
     <thead>
       <tr>
-        <th><a href="">&laquo;</a></th>
-        <th colspan="5"><?php echo $yearMonth ?></th>
-        <th><a href="">&raquo;</a></th>
+        <th><a href="?t=<?php echo $prev_month ?>">&laquo;</a></th>
+        <th colspan="5"><a href=""><?php echo $year_month ?></a></th>
+        <th><a href="?t=<?php echo $next_month ?>">&raquo;</a></th>
       </tr>
     </thead>
     <tbody>
