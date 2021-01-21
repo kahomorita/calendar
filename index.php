@@ -1,27 +1,82 @@
 <?php
 
-$body = '';
+require 'vendor/autoload.php';
+
+$today = new DateTime();
+
+if(isset($_GET['t']) && preg_match('/\A\d{4}-\d{2}\z/', $_GET['t'])) {
+  //クエリ情報を基にしてDateTimeインスタンスを作成
+  $start_day = new DateTime($_GET['t'] . '-01');
+} else {
+  //当月初日のDateTimeインスタンスを作成
+  $start_day = new DateTime('first day of this month');
+}
+
+//カレンダーの前月の年月を取得
+$dt = clone($start_day);
+$prev_month =  $dt->modify('-1 month')->format('Y-m');
+
+//翌月の年月を取得
+$dt = clone($start_day);
+$next_month = $dt -> modify('+1 month') -> format('Y-m');
+
+
+$year_month = $start_day -> format('Y-m');
+
+$year = $start_day->format('Y');
+
+$w = $start_day -> format('w');
+
+$start_day -> modify('-'.$w.'day');
+
+
+$end_day = new DateTime('last day of'.$year_month);
+
+$w = $end_day ->format('w');
+
+$w = 6 - $w + 1;
+
+$end_day -> modify('+'.$w.'day');
 
 $period = new DatePeriod(
-  new DateTime('first day of this month'),
-
-  // P１D...1日毎のデータを取得する
-  // P7D...7日毎のデータを取得する
-  new DateInterval(P1D),
-  new DateTime('first day of next month')
+  $start_day,
+  new DateInterval('P1D'),
+  $end_day
 );
+
+//祝日判定
+$holidays = \Yasumi\Yasumi::create('Japan', $year, 'ja_JP');
+
+$body = "";
+
+foreach($period as $day) {
+  $grey_class = $day -> format('Y-m')===$year_month?'':'grey';
+
+  $today_class = $day -> format('Y-m-d')===$today->format('Y-m-d')?'today':'';
+
+  $holiday_class = $holidays->isHoliday($day) ? 'holiday' : '';
+
+  if($day -> format('w') == 0) {
+    $body.='<tr>';
+  }
 
 // sprintf("%s 君は %s を %d 個食べました。", "太郎", "りんご", 7);
 // 「太郎 君は りんご を 7個食べました。」
 // 「%s」には文字列を、「%d」には数値を代入することができます。
-// 結合代入演算子('.=')で、 この演算子は右側の引数に左側の引数を追加します。
-foreach($period as $day) {
-  if($day->format('w')%7===0) {$body .= '</tr><tr>';}
-  $body .= sprintf('<td>%d</td>',$day->format('d'));
+  $body .=sprintf(
+    '<td class="youbi_%d %s %s %s">%d</td>',
+    $day ->format('w'),
+    $today_class,
+    $grey_class,
+    $holiday_class,
+    $day -> format('d')
+  );
+
+  if($day -> format('w')==6) {
+    $body .='</tr>';
+  }
 }
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -32,31 +87,23 @@ foreach($period as $day) {
   <title>カレンダー</title>
 </head>
 <body>
-  <table>
-    <thead>
+  <div class="calendar_top">
+  <a href="?t=<?php echo $prev_month ?>">&laquo;</a>
+  <a href="" class="this_year"><?php echo $year_month ?></a>
+  <a href="?t=<?php echo $next_month ?>">&raquo;</a>
+  </div>
+
+  <table class="calendar">
       <tr>
-        <th><a href="#">&laquo;</a></th>
-        <th colspan="5">January 2021</th>
-        <th><a href="#">&raquo;</a></th>
+        <th>日</th>
+        <th>月</th>
+        <th>火</th>
+        <th>水</th>
+        <th>木</th>
+        <th>金</th>
+        <th>土</th>
       </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Sun</td>
-        <td>Mon</td>
-        <td>Tue</td>
-        <td>Web</td>
-        <td>Thu</td>
-        <td>Fri</td>
-        <td>Sat</td>
-      </tr>
-      <tr>
-        <?php echo $body; ?>
-      </tr>
-    </tbody>
-    <tfoot>
-      <th colspan="7"><a href="#">Today</a></th>
-    </tfoot>
+      <?php echo $body ?>
   </table>
 </body>
 </html>

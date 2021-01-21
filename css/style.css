@@ -1,9 +1,53 @@
+.calendar_top a{
+  font-size: 30px;
+  color: #000000;
+  text-decoration: none;
+}
+
+
+.calendar {
+  border-collapse: collapse;
+}
+
+td,th {
+  border: 1px #000000 solid;
+  color: #535353;
+}
+
+th {
+  height: 30px;
+}
+
+td {
+  height: 60px;
+  width: 120px;
+  padding: 5px 0 0 5px;
+  display: table-cell;
+  vertical-align: top;
+  text-align: left;
+}
+
+th:nth-of-type(1),td:nth-of-type(1) {
+  color: #ff4a4a;
+}
+
+th:nth-of-type(7),td:nth-of-type(7) {
+  color: #66ceee;
+}
+
+
+
+
+
 .blank {
   background: #d8d8d8;
 }
 
 .grey {
-  color: #dedede;
+  color: #dedede !important;
+}
+.today {
+  background: #fdd7ed;
 }
 
 .holiday {
