@@ -64,7 +64,7 @@ foreach($period as $day) {
 // 「太郎 君は りんご を 7個食べました。」
 // 「%s」には文字列を、「%d」には数値を代入することができます。
   $body .=sprintf(
-    '<td class="youbi_%d %s %s %s">%d</td>',
+    '<td class="youbi_%d %s %s %s">%d<a href="./reserve.php">予約</a></td>',
     $day ->format('w'),
     $today_class,
     $grey_class,
@@ -83,27 +83,29 @@ foreach($period as $day) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/style.css">
   <title>カレンダー</title>
 </head>
 <body>
-  <div class="calendar_top">
-  <a href="?t=<?php echo $prev_month ?>">&laquo;</a>
-  <a href="" class="this_year"><?php echo $year_month ?></a>
-  <a href="?t=<?php echo $next_month ?>">&raquo;</a>
+  <div class="calender_container">
+    <div class="calendar_top">
+    <a href="?t=<?php echo $prev_month ?>" class="button">&lt;</a>
+    <a href="" class="this_year"><?php echo $year_month?></a>
+    <a href="?t=<?php echo $next_month ?>" class="button">&gt;</a>
+    </div>
+    <table class="calendar">
+        <tr>
+          <th>日</th>
+          <th>月</th>
+          <th>火</th>
+          <th>水</th>
+          <th>木</th>
+          <th>金</th>
+          <th>土</th>
+        </tr>
+        <?php echo $body ?>
+    </table>
   </div>
-
-  <table class="calendar">
-      <tr>
-        <th>日</th>
-        <th>月</th>
-        <th>火</th>
-        <th>水</th>
-        <th>木</th>
-        <th>金</th>
-        <th>土</th>
-      </tr>
-      <?php echo $body ?>
-  </table>
 </body>
 </html>
