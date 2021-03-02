@@ -62,7 +62,7 @@ foreach($period as $day) {
 
 // sprintf("%s 君は %s を %d 個食べました。", "太郎", "りんご", 7);
 // 「太郎 君は りんご を 7個食べました。」
-// 「%s」には文字列を、「%d」には数値を代入することができます。
+// 「%s」には文字列を、「%d」には数値を代入することができる。
   $body .=sprintf(
     '<td class="youbi_%d %s %s %s">%d<a href="./reserve.php">予約</a></td>',
     $day ->format('w'),
